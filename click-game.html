@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click Speed Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 12px;
+            min-width: 120px;
+        }
+
+        .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .value {
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .click-button {
+            width: 250px;
+            height: 250px;
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.1s ease;
+            margin: 20px 0;
+        }
+
+        .click-button:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .click-button:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .click-button:disabled {
+            background: gray;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .start-button {
+            font-size: 20px;
+            padding: 15px 40px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-button:hover {
+            background-color: #229954;
+            transform: translateY(-2px);
+        }
+
+        .start-button:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Click Speed Challenge</h1>
+
+        <div class="game-info">
+            <div class="stat">
+                <p class="label">Time Left:</p>
+                <p id="timer" class="value">10.0</p>
+            </div>
+            <div class="stat">
+                <p class="label">Clicks:</p>
+                <p id="score" class="value">0</p>
+            </div>
+            <div class="stat">
+                <p class="label">High Score:</p>
+                <p id="highScore" class="value">0</p>
+            </div>
+        </div>
+
+        <button id="clickButton" class="click-button" disabled>
+            Click START to Begin!
+        </button>
+
+        <button id="startButton" class="start-button">
+            START GAME
+        </button>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        // =============================================
+        // 1. GET ALL THE ELEMENTS (already done for you)
+        // =============================================
+        const clickButton = document.getElementById('clickButton');
+        const startButton = document.getElementById('startButton');
+        const timerDisplay = document.getElementById('timer');
+        const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('highScore');
+        const messageDisplay = document.getElementById('message');
+
+        // =============================================
+        // 2. GAME STATE VARIABLES (already done for you)
+        // =============================================
+        let score = 0;
+        let timeLeft = 10;
+        let highScore = 0;
+        let gameRunning = false;
+        let timerInterval = null;
+
+        // =============================================
+        // 3. HANDLE CLICK BUTTON
+        // =============================================
+        clickButton.addEventListener('click', function() {
+            // TODO 1: Handle the click!
+            // When the game is running:
+            //   - Add 1 to the score variable
+            //   - Update scoreDisplay.textContent to show the new score
+            //
+            // HINT: Use an if statement to check gameRunning
+            // HINT: score++ adds 1 to score
+            // HINT: scoreDisplay.textContent = score; updates what the player sees
+
+
+
+        });
+
+        // =============================================
+        // 4. HANDLE START BUTTON (already done for you)
+        // =============================================
+        startButton.addEventListener('click', function() {
+            startGame();
+        });
+
+        // =============================================
+        // 5. START GAME FUNCTION
+        // =============================================
+        function startGame() {
+            // TODO 2: Set up the game to start!
+            // Do these steps:
+            //   1. Set score to 0
+            //   2. Set timeLeft to 10
+            //   3. Set gameRunning to true
+            //   4. Clear the message: messageDisplay.textContent = '';
+            //   5. Update the displays:
+            //      - scoreDisplay.textContent = score;
+            //      - timerDisplay.textContent = timeLeft.toFixed(1);
+            //   6. Enable the click button:
+            //      - clickButton.disabled = false;
+            //      - clickButton.textContent = 'CLICK ME!';
+            //   7. Disable the start button:
+            //      - startButton.textContent = 'Game Running...';
+            //      - startButton.disabled = true;
+            //   8. Start the timer:
+            //      - timerInterval = setInterval(updateTimer, 100);
+            //
+            // HINT: .toFixed(1) shows one decimal place (e.g., 10.0)
+            // HINT: setInterval(updateTimer, 100) calls updateTimer every 0.1 seconds
+
+
+
+        }
+
+        // =============================================
+        // 6. UPDATE TIMER - runs every 0.1 seconds
+        //    (already done for you)
+        // =============================================
+        function updateTimer() {
+            timeLeft -= 0.1;
+
+            if (timeLeft <= 0) {
+                endGame();
+            } else {
+                timerDisplay.textContent = timeLeft.toFixed(1);
+            }
+        }
+
+        // =============================================
+        // 7. END GAME
+        // =============================================
+        function endGame() {
+            // TODO 3: End the game!
+            // Do these steps:
+            //   1. Set gameRunning to false
+            //   2. Stop the timer: clearInterval(timerInterval);
+            //   3. Disable the click button:
+            //      - clickButton.disabled = true;
+            //      - clickButton.textContent = "Time's Up!";
+            //   4. Re-enable the start button:
+            //      - startButton.disabled = false;
+            //      - startButton.textContent = 'PLAY AGAIN';
+            //   5. Check for a new high score:
+            //      - If score > highScore, update highScore and show "NEW HIGH SCORE!"
+            //      - Otherwise, show "Game Over! Your score: " + score
+            //   6. Reset timer display: timerDisplay.textContent = '0.0';
+            //
+            // HINT: Use if/else to compare score and highScore
+            // HINT: highScoreDisplay.textContent = highScore; updates the display
+            // HINT: messageDisplay.textContent = 'your message'; shows text
+
+
+
+        }
+    </script>
+</body>
+</html>

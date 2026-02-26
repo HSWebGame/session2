@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem Catcher Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat span {
+            color: #4ecdc4;
+        }
+
+        #gameCanvas {
+            border: 3px solid white;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #87ceeb 0%, #f0e68c 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            cursor: none;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .controls p {
+            margin: 5px 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        button {
+            margin-top: 15px;
+            font-size: 20px;
+            padding: 12px 30px;
+            background-color: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3dbdb3;
+            transform: translateY(-2px);
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gem Catcher</h1>
+
+        <div class="game-stats">
+            <div class="stat">Score: <span id="score">0</span></div>
+            <div class="stat">Lives: <span id="lives">3</span></div>
+        </div>
+
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+
+        <div class="controls">
+            <p>Move your mouse to control the basket</p>
+            <p>Or use left/right arrow keys</p>
+            <button id="startButton">START GAME</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        // =============================================
+        // SETUP (already done for you)
+        // =============================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
+        const scoreDisplay = document.getElementById('score');
+        const livesDisplay = document.getElementById('lives');
+        const messageDisplay = document.getElementById('message');
+
+        // =============================================
+        // GAME STATE (already done for you)
+        //   Just like the Click Speed game had score, timeLeft, gameRunning -
+        //   this game tracks score, lives, and gameRunning the same way!
+        // =============================================
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let animationId = null;
+
+        // =============================================
+        // GAME OBJECTS (already done for you)
+        // =============================================
+
+        // The basket (player)
+        const basket = {
+            x: canvas.width / 2 - 50,
+            y: canvas.height - 60,
+            width: 100,
+            height: 40,
+            speed: 8,
+            color: '#8B4513'
+        };
+
+        // Array to hold falling gems
+        let gems = [];
+
+        // =============================================
+        // CREATE A NEW GEM (already done for you)
+        // =============================================
+        function createGem() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            return {
+                x: Math.random() * (canvas.width - 30),
+                y: -30,
+                width: 30,
+                height: 30,
+                speed: 2 + Math.random() * 2,
+                color: randomColor,
+                caught: false
+            };
+        }
+
+        // =============================================
+        // DRAWING FUNCTIONS (already done for you)
+        // =============================================
+
+        function drawBasket() {
+            ctx.fillStyle = basket.color;
+            ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+
+            // Basket handle (arc above the basket)
+            ctx.strokeStyle = basket.color;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.arc(basket.x + basket.width / 2, basket.y, 20, Math.PI, 0);
+            ctx.stroke();
+        }
+
+        function drawGem(gem) {
+            // Diamond shape
+            ctx.fillStyle = gem.color;
+            ctx.beginPath();
+            ctx.moveTo(gem.x + gem.width / 2, gem.y);
+            ctx.lineTo(gem.x + gem.width, gem.y + gem.height / 2);
+            ctx.lineTo(gem.x + gem.width / 2, gem.y + gem.height);
+            ctx.lineTo(gem.x, gem.y + gem.height / 2);
+            ctx.closePath();
+            ctx.fill();
+
+            // Sparkle in the center
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillRect(gem.x + gem.width / 2 - 3, gem.y + gem.height / 2 - 3, 6, 6);
+        }
+
+        function clearCanvas() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87ceeb');
+            gradient.addColorStop(1, '#f0e68c');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // =============================================
+        // COLLISION DETECTION
+        // =============================================
+
+        function checkCollision(gem, basket) {
+            // TODO 1: Check if a gem is touching the basket!
+            //
+            // Two rectangles overlap when ALL of these are true:
+            //   - gem's left side   < basket's right side
+            //   - gem's right side  > basket's left side
+            //   - gem's top         < basket's bottom
+            //   - gem's bottom      > basket's top
+            //
+            // In code, that means return true when:
+            //   gem.x < basket.x + basket.width   AND
+            //   gem.x + gem.width > basket.x      AND
+            //   gem.y < basket.y + basket.height   AND
+            //   gem.y + gem.height > basket.y
+            //
+            // HINT: Use && to combine conditions
+            // HINT: return (condition1 && condition2 && condition3 && condition4);
+            //
+            // This is the SAME kind of if/else logic you used in the Click Speed game
+            // when checking if gameRunning was true - just with more conditions!
+
+            return false; // ← Replace this line with your collision check
+        }
+
+        // =============================================
+        // GAME LOOP - runs ~60 times per second
+        // =============================================
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            clearCanvas();
+            drawBasket();
+            updateBasketKeyboard();
+
+            // Update and draw each gem
+            for (let i = gems.length - 1; i >= 0; i--) {
+                const gem = gems[i];
+
+                // Move the gem down
+                gem.y += gem.speed;
+
+                // Check if gem was caught
+                if (checkCollision(gem, basket) && !gem.caught) {
+                    gem.caught = true;
+
+                    // TODO 2: Update the score when a gem is caught!
+                    //
+                    // Remember in the Click Speed game you did:
+                    //   score++;
+                    //   scoreDisplay.textContent = score;
+                    //
+                    // Do the same thing here!
+                    // Then remove this gem from the array:
+                    //   gems.splice(i, 1);
+                    //   continue;
+                    //
+                    // HINT: splice(i, 1) removes 1 item at position i
+                    // HINT: continue skips to the next gem in the loop
+
+
+
+                }
+
+                // Check if gem fell off the bottom
+                if (gem.y > canvas.height) {
+
+                    // TODO 3: Handle a missed gem!
+                    //
+                    // When a gem falls off screen:
+                    //   1. Subtract 1 from lives:  lives--;
+                    //   2. Update the display:      livesDisplay.textContent = lives;
+                    //   3. Remove this gem:          gems.splice(i, 1);
+                    //   4. Check if game is over:
+                    //      if (lives <= 0) {
+                    //          endGame();
+                    //          return;
+                    //      }
+                    //   5. Skip to next gem:         continue;
+                    //
+                    // This is like the Click Speed game's endGame check,
+                    // but instead of time running out, you run out of lives!
+
+
+
+                }
+
+                drawGem(gem);
+            }
+
+            // TODO 4: Spawn new gems randomly!
+            //
+            // Use Math.random() to occasionally create a new gem:
+            //   if (Math.random() < 0.02) {
+            //       gems.push(createGem());
+            //   }
+            //
+            // 0.02 means about a 2% chance each frame (roughly 1-2 gems per second)
+            // Try different numbers: 0.01 = fewer gems, 0.05 = more gems
+
+
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // =============================================
+        // PLAYER CONTROLS (already done for you)
+        // =============================================
+
+        // Mouse control
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            basket.x = mouseX - basket.width / 2;
+            // Keep basket inside the canvas
+            basket.x = Math.max(0, Math.min(canvas.width - basket.width, basket.x));
+        });
+
+        // Keyboard control
+        const keys = {};
+        document.addEventListener('keydown', (e) => { keys[e.key] = true; });
+        document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+        function updateBasketKeyboard() {
+            if (keys['ArrowLeft'] || keys['a']) {
+                basket.x -= basket.speed;
+            }
+            if (keys['ArrowRight'] || keys['d']) {
+                basket.x += basket.speed;
+            }
+            basket.x = Math.max(0, Math.min(canvas.width - basket.width, basket.x));
+        }
+
+        // =============================================
+        // GAME MANAGEMENT (already done for you)
+        // =============================================
+
+        function startGame() {
+            score = 0;
+            lives = 3;
+            gems = [];
+            gameRunning = true;
+
+            scoreDisplay.textContent = score;
+            livesDisplay.textContent = lives;
+            messageDisplay.textContent = '';
+
+            startButton.textContent = 'Game Running...';
+            startButton.disabled = true;
+
+            gameLoop();
+        }
+
+        function endGame() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+
+            messageDisplay.textContent = 'Game Over! Final Score: ' + score;
+            startButton.textContent = 'PLAY AGAIN';
+            startButton.disabled = false;
+        }
+
+        startButton.addEventListener('click', startGame);
+
+        // Draw the initial scene
+        clearCanvas();
+        drawBasket();
+    </script>
+</body>
+</html>
